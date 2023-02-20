@@ -1,14 +1,3 @@
-打包：
-pyinstaller.exe -F -c --noupx window_monitor.py 
-
-知乎 nuitka：https://zhuanlan.zhihu.com/p/165978688
-nuitka --standalone --onefile --windows-disable-console window_monitor.py -o window_monitor_nogui.exe
-
-运行方式：
-pythonw window_monitor.py
-Start-Process -WindowStyle Hidden .\window_monitor.exe
-window_monitor_nogui.exe
-
 
 
 
