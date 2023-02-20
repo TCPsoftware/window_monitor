@@ -1,0 +1,51 @@
+打包：
+pyinstaller.exe -F -c --noupx window_monitor.py 
+
+知乎 nuitka：https://zhuanlan.zhihu.com/p/165978688
+nuitka --standalone --onefile --windows-disable-console window_monitor.py -o window_monitor_nogui.exe
+
+nircmd隐藏运行（无用）
+https://www.junmajinlong.com/others/hide_window/
+nircmd exec hide window_monitor.exe
+
+运行方式：
+pythonw window_monitor.py
+Start-Process -WindowStyle Hidden .\window_monitor.exe
+window_monitor_nogui.exe
+
+
+
+python windows服务（无用）
+#1.安装服务
+python window_monitor.py install
+
+#2.让服务自动启动
+python window_monitor.py --startup auto install
+window_monitor.exe --startup auto install
+
+#3.启动服务
+python window_monitor.py start
+window_monitor.exe start
+
+#4.重启服务
+python window_monitor.py restart
+
+#5.停止服务
+python window_monitor.py stop
+
+#6.删除/卸载服务
+python window_monitor.py remove
+window_monitor.exe remove
+
+
+
+windows原生的sc（无用）
+安装服务：
+sc create window_monitor binPath="D:\bin\window_monitor\window_monitor.exe"
+sc config window_monitor start= AUTO
+net start window_monitor
+pause
+卸载服务：
+net stop window_monitor
+sc delete window_monitor
+pause
