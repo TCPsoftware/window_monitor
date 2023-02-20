@@ -1,13 +1,19 @@
 # encoding=utf-8
+import clr
 import os,sys,re,json,time
 import psutil
 import win32gui
 import win32process
-from subprocess import PIPE, Popen
+# from subprocess import PIPE, Popen
 # python调用命令行：https://zhuanlan.zhihu.com/p/329957363
 
 exe_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
 os.chdir(exe_dir) # 切换到文件所在目录
+clr.AddReference('VirtualDesktop')
+#clr.FindAssembly("ClassLibrary1.dll") ## 加载c#dll文件
+import VirtualDesktop
+from VirtualDesktop import Desktop
+
 
 now_hwnd_all = []
 # except_list = ['Progman',"Windows.UI.Core.CoreWindow", "ApplicationFrameWindow"]
@@ -31,21 +37,29 @@ def _get_all_hwnd_func(hwnd,mouse):
         _title = win32gui.GetWindowText(hwnd)
         # _class = win32gui.GetClassName(hwnd)
         if _title!="":
-            # proc = Popen('VirtualDesktop.exe "gdfwh:'+_title+'"',stdin=None,stdout=PIPE,stderr=PIPE,shell=True)
-            proc2 = Popen('VirtualDesktop.exe "gdfwh:'+str(hwnd)+'"',stdin=None,stdout=PIPE,stderr=PIPE,shell=True)
-            infoout2, infoerr2 = proc2.communicate()
-            infoout2=infoout2.decode("gbk")
-            infoerr2=infoerr2.decode("gbk")
-            # if infoerr != "":
-            if infoerr2 != "":
-                dbg=1
-            else:
-                # (desktop1, desktopname1) = re.search(r"is on desktop number (.*) \(desktop \'(.*)'\)", infoout).groups()
-                (desktop2, desktopname2) = re.search(r"is on desktop number (.*) \(desktop \'(.*)'\)", infoout2).groups()
-                thread, processId = win32process.GetWindowThreadProcessId(hwnd)
-                exename = psutil.Process(processId).name()
-                # hwnd_title.append([desktop2, desktopname2, hwnd, thread, processId, exename, _title])
-                now_hwnd_all["arr"].append((desktop2, desktopname2, processId, hwnd, exename, _title))
+            # # proc = Popen('VirtualDesktop.exe "gdfwh:'+_title+'"',stdin=None,stdout=PIPE,stderr=PIPE,shell=True)
+            # proc2 = Popen('VirtualDesktop.exe "gdfwh:'+str(hwnd)+'"',stdin=None,stdout=PIPE,stderr=PIPE,shell=True)
+            # infoout2, infoerr2 = proc2.communicate()
+            # infoout2=infoout2.decode("gbk")
+            # infoerr2=infoerr2.decode("gbk")
+            # # if infoerr != "":
+            # if infoerr2 != "":
+            #     dbg=1
+            # else:
+            #     # (desktop1, desktopname1) = re.search(r"is on desktop number (.*) \(desktop \'(.*)'\)", infoout).groups()
+            #     (desktop2, desktopname2) = re.search(r"is on desktop number (.*) \(desktop \'(.*)'\)", infoout2).groups()
+            #     thread, processId = win32process.GetWindowThreadProcessId(hwnd)
+            #     exename = psutil.Process(processId).name()
+            #     # hwnd_title.append([desktop2, desktopname2, hwnd, thread, processId, exename, _title])
+            #     now_hwnd_all["arr"].append((desktop2, desktopname2, processId, hwnd, exename, _title))
+            try:
+                rc = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.FromWindow(hwnd))
+            except Exception:
+                return
+            desktop3, desktopname3 = str(rc), VirtualDesktop.Desktop.DesktopNameFromIndex(rc)
+            thread, processId = win32process.GetWindowThreadProcessId(hwnd)
+            exename = psutil.Process(processId).name()
+            now_hwnd_all["arr"].append((desktop3, desktopname3, processId, hwnd, exename, _title))
 
 def update_hwnd_arr():
     global now_hwnd_all
@@ -141,8 +155,6 @@ if __name__ == "__main__":
         last_hwnd_all = now_hwnd_all
         save_last_hwnd_all_to_history(last_hwnd_all)
     while True:
-        # log("sleeping...")
-        time.sleep(seconds_config)
         # 再次获取窗口，然后和last比对，如果不同则
         # log("updating...")
         update_hwnd_arr()
@@ -151,4 +163,6 @@ if __name__ == "__main__":
             log("saving...")
             save_last_hwnd_all_to_history(last_hwnd_all)
         dbg=1
+        # log("sleeping...")
+        time.sleep(seconds_config)
 a=1

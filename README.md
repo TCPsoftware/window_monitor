@@ -13,6 +13,9 @@ pyinstaller.exe -F -c --noupx window_monitor.py
 nuitka打包：知乎 nuitka：https://zhuanlan.zhihu.com/p/165978688
 nuitka --standalone --onefile --windows-disable-console window_monitor.py -o window_monitor_nogui.exe
 
+VirtualDesktop.dll编译：
+C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe /target:library /out:VirtualDesktop.dll VirtualDesktop.cs
+
 运行方式：
 pythonw window_monitor.py
 Start-Process -WindowStyle Hidden .\window_monitor.exe (文件名：run_with_new_process.ps1)

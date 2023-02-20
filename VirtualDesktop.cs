@@ -4,6 +4,10 @@
 // Compile with:
 // C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe VirtualDesktop.cs
 
+// From https://github.com/MScholtes/VirtualDesktop
+// To compile DLL:
+// C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe /target:library /out:VirtualDesktop.dll VirtualDesktop.cs
+
 using System;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
@@ -16,7 +20,7 @@ using System.Reflection;
 [assembly:AssemblyConfiguration("")]
 [assembly:AssemblyCompany("MS")]
 [assembly:AssemblyProduct("VirtualDesktop")]
-[assembly:AssemblyCopyright("© Markus Scholtes 2022")]
+[assembly:AssemblyCopyright("ï¿½ Markus Scholtes 2022")]
 [assembly:AssemblyTrademark("")]
 [assembly:AssemblyCulture("")]
 [assembly:AssemblyVersion("1.11.0.0")]
@@ -368,6 +372,17 @@ Console.WriteLine("Name of desktop: " + desktopName);
 
 		public static Desktop FromWindow(IntPtr hWnd)
 		{ // return desktop object to desktop on which window <hWnd> is displayed
+			if (hWnd == IntPtr.Zero) throw new ArgumentNullException();
+			Guid id = DesktopManager.VirtualDesktopManager.GetWindowDesktopId(hWnd);
+			if ((id.CompareTo(AppOnAllDesktops) == 0) || (id.CompareTo(WindowOnAllDesktops) == 0))
+				return new Desktop(DesktopManager.VirtualDesktopManagerInternal.GetCurrentDesktop());
+			else
+				return new Desktop(DesktopManager.VirtualDesktopManagerInternal.FindDesktop(ref id));
+		}
+
+		public static Desktop FromWindow(int hWnd_old)
+		{ // return desktop object to desktop on which window <hWnd> is displayed
+			IntPtr hWnd = (IntPtr)hWnd_old;
 			if (hWnd == IntPtr.Zero) throw new ArgumentNullException();
 			Guid id = DesktopManager.VirtualDesktopManager.GetWindowDesktopId(hWnd);
 			if ((id.CompareTo(AppOnAllDesktops) == 0) || (id.CompareTo(WindowOnAllDesktops) == 0))
