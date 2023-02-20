@@ -117,16 +117,16 @@ def get_last_hwnd_all_from_json():
     global all_history
     all_history = get_json(program_history_json)
     if len(all_history) > 0:
-        return all_history[-1]
+        return all_history[0]
     else:
         return None
 
 def save_last_hwnd_all_to_history(a_last):
-    all_history.append(a_last)
+    all_history.insert(0, a_last)
     if len(all_history) > 500: # 清除第一次，避免长度超过500
-        all_history.pop(0)
+        all_history.pop()
     if len(all_history) > 500: # 清除第二次，确认避免长度超过500
-        all_history.pop(0)
+        all_history.pop()
     write_obj_to_json(all_history, program_history_json)
 
 # 保留10000条记录，每3秒记录一次，共约8.3小时

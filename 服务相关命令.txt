@@ -4,15 +4,17 @@ pyinstaller.exe -F -c --noupx window_monitor.py
 知乎 nuitka：https://zhuanlan.zhihu.com/p/165978688
 nuitka --standalone --onefile --windows-disable-console window_monitor.py -o window_monitor_nogui.exe
 
-nircmd隐藏运行（无用）
-https://www.junmajinlong.com/others/hide_window/
-nircmd exec hide window_monitor.exe
-
 运行方式：
 pythonw window_monitor.py
 Start-Process -WindowStyle Hidden .\window_monitor.exe
 window_monitor_nogui.exe
 
+
+
+
+nircmd隐藏运行（无用）
+https://www.junmajinlong.com/others/hide_window/
+nircmd exec hide window_monitor.exe
 
 
 python windows服务（无用）
@@ -36,7 +38,6 @@ python window_monitor.py stop
 #6.删除/卸载服务
 python window_monitor.py remove
 window_monitor.exe remove
-
 
 
 windows原生的sc（无用）
