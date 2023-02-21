@@ -2,11 +2,9 @@
 
 监控所有窗口，并记录到json文件，当资源管理器崩溃或者系统重启，可以查看json恢复你的工作
 
-
-
 ## 编译和运行方法
 
-``` cmd
+```cmd
 pyinstaller打包：
 pyinstaller.exe -F -c --noupx window_monitor.py 
 
@@ -23,8 +21,10 @@ window_monitor_nogui.exe （推荐）
 
 ```
 
+## 运行效果
 
+![running.png](images/running.png)
 
 ## 相关repo
 
-MScholtes/VirtualDesktop:  <https://github.com/MScholtes/VirtualDesktop>
+MScholtes/VirtualDesktop:  [https://github.com/MScholtes/VirtualDesktop](https://github.com/MScholtes/VirtualDesktop)
