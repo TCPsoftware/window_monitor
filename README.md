@@ -17,8 +17,8 @@ VirtualDesktop.dll编译：
 C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe /target:library /out:VirtualDesktop.dll VirtualDesktop.cs
 
 运行方式：
-pythonw window_monitor.py
-Start-Process -WindowStyle Hidden .\window_monitor.exe (文件名：run_with_new_process.ps1)
+pythonw window_monitor.py（不推荐）
+Start-Process -WindowStyle Hidden .\window_monitor.exe (文件名：run_with_new_process.ps1)（不推荐）
 window_monitor_nogui.exe （推荐）
 
 ```

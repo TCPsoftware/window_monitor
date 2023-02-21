@@ -1,1 +1,0 @@
-Start-Process -WindowStyle Hidden .\window_monitor.exe

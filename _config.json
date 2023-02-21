@@ -1,0 +1,4 @@
+{
+    "max_history_length": 400,
+    "seconds_per_loop": 20
+}

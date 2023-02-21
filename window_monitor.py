@@ -9,6 +9,7 @@ import win32process
 
 exe_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
 os.chdir(exe_dir) # 切换到文件所在目录
+# python调用cs: https://zhuanlan.zhihu.com/p/145617607
 clr.AddReference('VirtualDesktop')
 #clr.FindAssembly("ClassLibrary1.dll") ## 加载c#dll文件
 import VirtualDesktop
@@ -18,12 +19,17 @@ from VirtualDesktop import Desktop
 now_hwnd_all = []
 # except_list = ['Progman',"Windows.UI.Core.CoreWindow", "ApplicationFrameWindow"]
 all_history = []
+max_history_length = 500
+seconds_per_loop = 10
 
 program_history_json = "_program_history.json"
+program_history_backup_json = "_program_history_backup.json"
+config_json = "_config.json"
+log_txt = "_log.txt"
 last_hwnd_all = None
 
 def log(message):
-    with open("log.txt", "a", encoding="utf8") as f:
+    with open(log_txt, "a", encoding="utf8") as f:
         out_info = "[ "+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + "] " + message+"\n"
         print(out_info)
         f.write(out_info)
@@ -137,17 +143,20 @@ def get_last_hwnd_all_from_json():
 
 def save_last_hwnd_all_to_history(a_last):
     all_history.insert(0, a_last)
-    if len(all_history) > 500: # 清除第一次，避免长度超过500
+    if len(all_history) > max_history_length: # 清除第一次，避免长度超过 max_history_length
         all_history.pop()
-    if len(all_history) > 500: # 清除第二次，确认避免长度超过500
+    if len(all_history) > max_history_length: # 清除第二次，确认避免长度超过 max_history_length
+        all_history.pop()
         all_history.pop()
     write_obj_to_json(all_history, program_history_json)
 
 # 保留10000条记录，每3秒记录一次，共约8.3小时
 if __name__ == "__main__":
 # def program_main():
-    seconds_config = 10
-    log(f"正在每 {seconds_config} 秒一次监视所有窗口状态...")
+    cfg = get_json(config_json)
+    max_history_length = cfg["max_history_length"]
+    seconds_per_loop = cfg["seconds_per_loop"]
+    log(f"最长历史纪录 {max_history_length} ，正在每 {seconds_per_loop} 秒一次监视所有窗口状态...")
     if last_hwnd_all is None: # 刚运行程序
         last_hwnd_all = get_last_hwnd_all_from_json()
     if last_hwnd_all is None: # 没有历史json，就获取一个当前的值
@@ -164,5 +173,7 @@ if __name__ == "__main__":
             save_last_hwnd_all_to_history(last_hwnd_all)
         dbg=1
         # log("sleeping...")
-        time.sleep(seconds_config)
+        time.sleep(seconds_per_loop/2)
+        write_obj_to_json(all_history, program_history_backup_json)
+        time.sleep(seconds_per_loop/2)
 a=1
