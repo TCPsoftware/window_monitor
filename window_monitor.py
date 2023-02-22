@@ -71,7 +71,7 @@ def update_hwnd_arr():
     global now_hwnd_all
     _timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     now_hwnd_all = {"time": _timestamp,
-                    "note": "窗口id, 窗口名, 进程id, 句柄id, exe名, 窗口标题",
+                    "note": "桌面id, 桌面名称, 进程id, 句柄id, exe名, 窗口标题",
                     "count": 0,
                     "arr": []}
     desktop_index = 0
