@@ -7,6 +7,7 @@
 // From https://github.com/MScholtes/VirtualDesktop
 // To compile DLL:
 // C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe /target:library /out:VirtualDesktop.dll VirtualDesktop.cs
+// 为和python搭配，修改了部分代码，标记为："// 人工修改"
 
 using System;
 using System.Runtime.InteropServices;
@@ -20,7 +21,7 @@ using System.Reflection;
 [assembly:AssemblyConfiguration("")]
 [assembly:AssemblyCompany("MS")]
 [assembly:AssemblyProduct("VirtualDesktop")]
-[assembly:AssemblyCopyright("� Markus Scholtes 2022")]
+[assembly:AssemblyCopyright("© Markus Scholtes 2022")]
 [assembly:AssemblyTrademark("")]
 [assembly:AssemblyCulture("")]
 [assembly:AssemblyVersion("1.11.0.0")]
@@ -380,6 +381,7 @@ Console.WriteLine("Name of desktop: " + desktopName);
 				return new Desktop(DesktopManager.VirtualDesktopManagerInternal.FindDesktop(ref id));
 		}
 
+		// 人工修改
 		public static Desktop FromWindow(int hWnd_old)
 		{ // return desktop object to desktop on which window <hWnd> is displayed
 			IntPtr hWnd = (IntPtr)hWnd_old;
@@ -536,6 +538,12 @@ Console.WriteLine("Name of desktop: " + desktopName);
 				else
 					return null;
 			}
+		}
+
+		// 人工修改
+		public void MoveWindow(int hWnd_old)
+		{ // move window to this desktop
+			MoveWindow((IntPtr)hWnd_old);
 		}
 
 		public void MoveWindow(IntPtr hWnd)

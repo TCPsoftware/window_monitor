@@ -1,20 +1,20 @@
 # encoding=utf-8
-import clr
+
 import os,sys,re,json,time
 import psutil
 import win32gui
 import win32process
 # from subprocess import PIPE, Popen
 # python调用命令行：https://zhuanlan.zhihu.com/p/329957363
-
-exe_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
-os.chdir(exe_dir) # 切换到文件所在目录
+import clr
 # python调用cs: https://zhuanlan.zhihu.com/p/145617607
 clr.AddReference('VirtualDesktop')
 #clr.FindAssembly("ClassLibrary1.dll") ## 加载c#dll文件
 import VirtualDesktop
 from VirtualDesktop import Desktop
 
+exe_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
+os.chdir(exe_dir) # 切换到文件所在目录
 
 now_hwnd_all = []
 # except_list = ['Progman',"Windows.UI.Core.CoreWindow", "ApplicationFrameWindow"]
@@ -67,10 +67,11 @@ def _get_all_hwnd_func(hwnd,mouse):
             exename = psutil.Process(processId).name()
             now_hwnd_all["arr"].append((desktop3, desktopname3, processId, hwnd, exename, _title))
 
-def update_hwnd_arr():
+def update_hwnd_arr(return_value=False):
     global now_hwnd_all
     _timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    now_hwnd_all = {"time": _timestamp,
+    now_hwnd_all = {"timestamp": int(time.time()),
+                    "time": _timestamp,
                     "note": "桌面id, 桌面名称, 进程id, 句柄id, exe名, 窗口标题",
                     "count": 0,
                     "arr": []}
@@ -81,6 +82,8 @@ def update_hwnd_arr():
     win32gui.EnumWindows(_get_all_hwnd_func, 0)
     now_hwnd_all["arr"].sort(key=lambda x: (x[desktop_index],x[exe_index],x[hwnd_index]))
     now_hwnd_all["count"] = len(now_hwnd_all["arr"])
+    if return_value:
+        return now_hwnd_all
 
 def get_all_pid(): # 输出全部，但太多了，弃用
     # pids = psutil.pids()
@@ -135,7 +138,12 @@ def write_obj_to_json(obj, out_json_filename, indent=4, end=""):
 
 def get_last_hwnd_all_from_json():
     global all_history
-    all_history = get_json(program_history_json)
+    read_history1 = get_json(program_history_json)
+    read_history2 = get_json(program_history_backup_json)
+    if len(read_history1) >= len(read_history2):
+        all_history = read_history1
+    else:
+        all_history = read_history2
     if len(all_history) > 0:
         return all_history[0]
     else:
