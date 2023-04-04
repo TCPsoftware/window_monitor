@@ -139,11 +139,11 @@ def main():
                 print('index{}\t"{}"\texplorer.exe "{}"'.format(_desk_id,_desk_name,_window_title))
             while True:
                 choice=input("输入 n 并回车以忽略这些窗口，直接回车关闭这些窗口: ")
-                if choice in ['n',""]:
+                if choice in ["n",""]:
                     break
                 else:
                     print("输入错误.")
-            if choice == 'n':
+            if choice == "":
                 for obj in not_moved_arr:
                     win32gui.PostMessage(obj[3], win32con.WM_CLOSE, 0, 0)
                     dbg=1
