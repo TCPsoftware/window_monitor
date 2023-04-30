@@ -121,7 +121,12 @@ def get_json(json_filename):
     # 检查json文件有没有
     if os.path.exists(json_filename):
         with open(json_filename, "r", encoding="utf8") as f:
-            json_obj = json.load(f)
+            json_text = f.read()
+            if json_text != "":
+                json_obj = json.loads(json_text)
+            else:
+                print(f"{json_filename}文件为空，get_json读取为[]")
+                json_obj = []
         return json_obj
     else:
         return []
