@@ -5,14 +5,17 @@
 ## 编译和运行方法（手动版）
 
 ```cmd
-pyinstaller打包：
+pyinstaller打包：（不推荐）
 pyinstaller.exe -F -c --noupx window_monitor.py 
 
-nuitka打包：知乎 nuitka：https://zhuanlan.zhihu.com/p/165978688
+nuitka打包：（推荐）
+知乎 nuitka：https://zhuanlan.zhihu.com/p/165978688
 nuitka --standalone --onefile --windows-disable-console window_monitor.py -o window_monitor_nogui.exe
+
 
 VirtualDesktop.dll编译：
 C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe /target:library /out:VirtualDesktop.dll VirtualDesktop.cs
+
 
 运行方式：
 pythonw window_monitor.py（不推荐）

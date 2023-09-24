@@ -4,6 +4,7 @@ import os,sys,re,json,time
 import psutil
 import win32gui
 import win32process
+import pymsgbox
 # from subprocess import PIPE, Popen
 # python调用命令行：https://zhuanlan.zhihu.com/p/329957363
 import clr
@@ -60,7 +61,9 @@ def _get_all_hwnd_func(hwnd,mouse):
             #     now_hwnd_all["arr"].append((desktop2, desktopname2, processId, hwnd, exename, _title))
             try:
                 rc = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.FromWindow(hwnd))
-            except Exception:
+            except Exception as e:
+                # print("捕获到异常：", type(e))  # 打印异常类型
+                # print("异常信息：", e)  # 打印异常信息
                 return
             desktop3, desktopname3 = str(rc), VirtualDesktop.Desktop.DesktopNameFromIndex(rc)
             thread, processId = win32process.GetWindowThreadProcessId(hwnd)
@@ -82,6 +85,8 @@ def update_hwnd_arr(return_value=False):
     win32gui.EnumWindows(_get_all_hwnd_func, 0)
     now_hwnd_all["arr"].sort(key=lambda x: (x[desktop_index],x[exe_index],x[hwnd_index]))
     now_hwnd_all["count"] = len(now_hwnd_all["arr"])
+    if now_hwnd_all["count"] == 0:
+        pymsgbox.alert("window_monitor 检测到窗口列表为空\n建议重启本程序", "window_monitor")
     if return_value:
         return now_hwnd_all
 
@@ -189,4 +194,6 @@ if __name__ == "__main__":
         time.sleep(seconds_per_loop/2)
         write_obj_to_json(all_history, program_history_backup_json)
         time.sleep(seconds_per_loop/2)
+        # os.system("pause")
+        dbg=1
 a=1
