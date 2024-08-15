@@ -1,6 +1,10 @@
 _log.txt
 _program_history_backup.json
 _program_history.json
+__pycache__
 window_monitor*.exe
 releases
-__pycache__
+.vscode
+window_monitor.build
+window_monitor.dist
+window_monitor.onefile-build

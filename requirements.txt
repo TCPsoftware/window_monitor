@@ -1,0 +1,4 @@
+psutil==6.0.0
+pymsgbox==1.0.9
+pythonnet==3.0.3
+pywin32==306
