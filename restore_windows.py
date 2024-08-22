@@ -7,10 +7,15 @@ import win32process
 # from subprocess import PIPE, Popen
 # python调用命令行：https://zhuanlan.zhihu.com/p/329957363
 import winreg
-from window_monitor import update_hwnd_arr, Desktop
+from window_monitor import update_hwnd_arr, get_json, add_dll_symbol
 
 exe_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
 os.chdir(exe_dir) # 切换到文件所在目录
+
+config_json = "_config.json"
+cfg = get_json(config_json)
+virtualdesktop_dll_name = cfg["VirtualDesktop_DLL_name"]
+VirtualDesktop, Desktop = add_dll_symbol(virtualdesktop_dll_name)
 
 userhomepath = os.environ['USERPROFILE']
 userdir = os.path.split(userhomepath)[-1]

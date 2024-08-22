@@ -22,6 +22,7 @@ def add_dll_symbol(dll_filename):
     import VirtualDesktop
     from VirtualDesktop import Desktop
     dbg=1
+    return VirtualDesktop, Desktop
 
 now_hwnd_all = []
 # except_list = ['Progman',"Windows.UI.Core.CoreWindow", "ApplicationFrameWindow"]
