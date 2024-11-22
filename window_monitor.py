@@ -5,6 +5,7 @@ import psutil
 import win32gui
 import win32process
 import pymsgbox
+import traceback
 # from subprocess import PIPE, Popen
 # python调用命令行：https://zhuanlan.zhihu.com/p/329957363
 import clr
@@ -138,7 +139,14 @@ def get_json(json_filename):
         with open(json_filename, "r", encoding="utf8") as f:
             json_text = f.read()
             if json_text != "":
-                json_obj = json.loads(json_text)
+                try:
+                    json_obj = json.loads(json_text)
+                except Exception as e:
+                    pymsgbox.alert(f"window_monitor 打开json失败：{json_filename}\n"
+                                   "建议检查json文件然后重新运行本程序\n"
+                                   "（注：通常是资源管理器卡死或重启或程序异常中止导致的写入异常，需将两份历史记录手动同步）", "window_monitor")
+                    # raise
+                    exit()
             else:
                 print(f"{json_filename}文件为空，get_json读取为[]")
                 json_obj = []
@@ -179,8 +187,8 @@ def save_last_hwnd_all_to_history(a_last):
     write_obj_to_json(all_history, program_history_json)
 
 # 保留10000条记录，每3秒记录一次，共约8.3小时
-if __name__ == "__main__":
-# def program_main():
+def program_main():
+    global last_hwnd_all, max_history_length, seconds_per_loop
     cfg = get_json(config_json)
     max_history_length = cfg["max_history_length"]
     seconds_per_loop = cfg["seconds_per_loop"]
@@ -209,4 +217,18 @@ if __name__ == "__main__":
         time.sleep(seconds_per_loop/2)
         # os.system("pause")
         dbg=1
+
+if __name__ == "__main__":
+    is_debugging = sys.gettrace()
+    if is_debugging: # vscode拉起调试中，暴露错误信息
+        program_main()
+    else: # 没有在调试，打印错误信息
+        try:
+            program_main()
+        except Exception as e:
+            error_str = traceback.format_exc()
+            log(f"{type(e).__name__}: {str(e)}\n{error_str}")
+            pymsgbox.alert(error_str, "window_monitor: 发生错误")
+            dbg = 1
+
 a=1
