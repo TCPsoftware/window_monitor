@@ -83,8 +83,10 @@ def main():
         for obj in found["arr"]:
             dbg=1
             if obj[4] == "explorer.exe":
+                if obj[5].endswith(" - 文件资源管理器"):
+                    obj[5] = obj[5].replace(" - 文件资源管理器","")
                 explorer_arr.append(obj)
-        explorer_arr.reverse()
+        # explorer_arr.reverse()
         started_arr = []
         started_titles = []
         error_list = []
@@ -99,6 +101,7 @@ def main():
                     started_titles.append(_window_title)
                 else:
                     os.system('explorer.exe "{}"'.format(_window_title))
+                time.sleep(0.1)
                 started_arr.append(obj)
             except Exception:
                 error_list.append(obj)
@@ -114,8 +117,10 @@ def main():
         hwnd_all = update_hwnd_arr(return_value=True)
         explorer_arr = []
         for obj in hwnd_all["arr"]:
-            dbg=1
+            obj = list(obj)
             if obj[4] == "explorer.exe":
+                if obj[5].endswith(" - 文件资源管理器"):
+                    obj[5] = obj[5].replace(" - 文件资源管理器","")
                 explorer_arr.append(obj)
         dbg=1
 # # 引用
