@@ -6,6 +6,7 @@ mkdir %newdir%
 
 ::复制文件，cp是使用的linux命令
 cp _config.json               %newdir%
+cp _config_title_replace.json %newdir%
 cp restart_window_monitor.bat %newdir%
 cp restore_windows.bat        %newdir%
 cp restore_windows.py         %newdir%

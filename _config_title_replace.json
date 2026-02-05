@@ -1,0 +1,8 @@
+[
+    {
+        "condition_string": "BitComet(比特彗星) (64-bit)",
+        "re_condition_pattern": "BitComet\\(比特彗星\\) \\(64-bit\\)",
+        "re_replace_old": "下载:[^,]+, 上传:[^-]+",
+        "re_replace_new": "下载:XX/s, 上传:XX/s "
+    }
+]

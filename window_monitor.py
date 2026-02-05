@@ -1,3 +1,15 @@
+# nuitka-project: --standalone
+# nuitka-project: --onefile
+# nuitka-project: --windows-console-mode=disable
+# nuitka-project: --file-version=0.9
+# nuitka-project: --product-version=0.9
+# nuitka-project: --company-name=tcpsoft
+# nuitka-project: --product-name=window_monitor
+# nuitka-project: --file-description=窗口记录工具，定期记录所有窗口，并记录到json文件，当资源管理器崩溃或者系统重启，可以查看json恢复你的工作
+# nuitka-project: --copyright=© 2026 tcpsoft
+# nuitka-project: --output-filename=window_monitor_nogui.exe
+# 编译命令： nuitka window_monitor.py
+
 # encoding=utf-8
 
 import os,sys,re,json,time
@@ -34,6 +46,9 @@ seconds_per_loop = 10
 program_history_json = "_program_history.json"
 program_history_backup_json = "_program_history_backup.json"
 config_json = "_config.json"
+config_title_replace = "_config_title_replace.json"
+cfg = None
+cfg_title_replace = None
 log_txt = "_log.txt"
 last_hwnd_all = None
 
@@ -47,11 +62,31 @@ log(exe_dir)
 
 # 被调用的工具函数
 def _get_all_hwnd_func(hwnd,mouse):
-    global now_hwnd_all
+    global now_hwnd_all, cfg_title_replace
     if win32gui.IsWindow(hwnd) and win32gui.IsWindowEnabled(hwnd) and win32gui.IsWindowVisible(hwnd):
         _title = win32gui.GetWindowText(hwnd)
         # _class = win32gui.GetClassName(hwnd)
+
+        # title = '下载:0 KB/s, 上传:0 KB/s - BitComet(比特彗星) (64-bit) 2.19'
+        # condition_pattern = r'BitComet\(比特彗星\) \(64-bit\)'
+        # replace_old = r'下载:[^,]+, 上传:[^ ]+'
+        # replace_new = '下载:XX/s, 上传:XX/s'
+        # if re.search(condition_pattern, title):
+        #     new_title = re.sub(replace_old, replace_new, title)
+        #     print(new_title)
+
         if _title!="":
+            for title_rule in cfg_title_replace:
+                # 普通字符串匹配
+                if title_rule["condition_string"] != "" and title_rule["condition_string"] in _title:
+                    old_title = _title
+                    _title = re.sub(title_rule["re_replace_old"], title_rule["re_replace_new"], _title)
+                    dbg=1
+                # 正则表达式匹配
+                if title_rule["re_condition_pattern"] != "" and re.search(title_rule["re_condition_pattern"], _title):
+                    old_title = _title
+                    _title = re.sub(title_rule["re_replace_old"], title_rule["re_replace_new"], _title)
+                    dbg=1
             # # proc = Popen('VirtualDesktop.exe "gdfwh:'+_title+'"',stdin=None,stdout=PIPE,stderr=PIPE,shell=True)
             # proc2 = Popen('VirtualDesktop.exe "gdfwh:'+str(hwnd)+'"',stdin=None,stdout=PIPE,stderr=PIPE,shell=True)
             # infoout2, infoerr2 = proc2.communicate()
@@ -189,7 +224,9 @@ def save_last_hwnd_all_to_history(a_last):
 # 保留10000条记录，每3秒记录一次，共约8.3小时
 def program_main():
     global last_hwnd_all, max_history_length, seconds_per_loop
+    global cfg, cfg_title_replace
     cfg = get_json(config_json)
+    cfg_title_replace = get_json(config_title_replace)
     max_history_length = cfg["max_history_length"]
     seconds_per_loop = cfg["seconds_per_loop"]
     virtualdesktop_dll_name = cfg["VirtualDesktop_DLL_name"]
