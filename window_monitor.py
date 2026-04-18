@@ -255,6 +255,14 @@ def program_main():
         # os.system("pause")
         dbg=1
 
+def init_load_cfg():
+    global last_hwnd_all, max_history_length, seconds_per_loop
+    global cfg, cfg_title_replace
+    cfg = get_json(config_json)
+    cfg_title_replace = get_json(config_title_replace)
+
+init_load_cfg() # 避免 restore_windows.py 导入时，cfg等变量未定义导致的错误
+
 if __name__ == "__main__":
     is_debugging = sys.gettrace()
     if is_debugging: # vscode拉起调试中，暴露错误信息
