@@ -1,8 +1,8 @@
 # nuitka-project: --standalone
 # nuitka-project: --onefile
 # nuitka-project: --windows-console-mode=disable
-# nuitka-project: --file-version=0.9
-# nuitka-project: --product-version=0.9
+# nuitka-project: --file-version=1.0
+# nuitka-project: --product-version=1.0
 # nuitka-project: --company-name=tcpsoft
 # nuitka-project: --product-name=window_monitor
 # nuitka-project: --file-description=窗口记录工具，定期记录所有窗口，并记录到json文件，当资源管理器崩溃或者系统重启，可以查看json恢复你的工作
@@ -52,13 +52,43 @@ cfg_title_replace = None
 log_txt = "_log.txt"
 last_hwnd_all = None
 
-def log(message):
-    with open(log_txt, "a", encoding="utf8") as f:
-        out_info = "[ "+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + "] " + message+"\n"
-        print(out_info)
-        f.write(out_info)
 
-log(exe_dir)
+def check_tmp_files_exist(reason="程序启动"):
+    tmp_files = [
+        program_history_json + ".tmp",
+        program_history_backup_json + ".tmp",
+        log_txt + ".tmp",
+    ]
+    tmp_exist = [f for f in tmp_files if os.path.exists(f)]
+    if tmp_exist:
+        msg = (
+            "window_monitor 检测到上次读写出错，以下临时文件仍然存在：\n\n" +
+            "\n".join(tmp_exist) +
+            "\n\n请检查这些文件，然后重新运行程序。"
+        )
+        pymsgbox.alert(msg, f"window_monitor - {reason}")
+        return True
+    else:
+        return False
+
+
+def log_with_tmp(message):
+    if check_tmp_files_exist("写日志"):
+        return
+    out_info = "[ "+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + "] " + message + "\n"
+    try:
+        with open(log_txt, "a", encoding="utf8") as f:
+            f.write(out_info)
+            f.flush()
+            os.fsync(f.fileno())
+    except Exception:
+        # 如果写日志失败，保留控制台输出并继续让程序抛出或退出
+        print(out_info, end="")
+        raise
+    print(out_info, end="")
+
+def log(message):
+    log_with_tmp(message)
 
 # 被调用的工具函数
 def _get_all_hwnd_func(hwnd,mouse):
@@ -189,15 +219,20 @@ def get_json(json_filename):
     else:
         return []
 
-def write_obj_to_json(obj, out_json_filename, indent=4, end=""):
-    # 输出到文件
-    with open(out_json_filename, "w", encoding="utf8") as f:
-        _dumps = json.dumps(obj, indent=indent, ensure_ascii=False)
-        _dumps = _dumps.replace("\n                "," ")
-        _dumps = _dumps.replace("\n            ]"," ]")
+def write_obj_to_json_with_tmp(obj, out_json_filename, indent=4, end=""):
+    # 检查tmp文件有没有，如果有就说明上次写入失败了，先弹窗提示用户检查文件
+    if check_tmp_files_exist("写入JSON"):
+        return
+    tmp_filename = out_json_filename + ".tmp"
+    _dumps = json.dumps(obj, indent=indent, ensure_ascii=False)
+    _dumps = _dumps.replace("\n                "," ")
+    _dumps = _dumps.replace("\n            ]"," ]")
+    with open(tmp_filename, "w", encoding="utf8") as f:
         f.write(_dumps)
         f.write(end)
-    
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp_filename, out_json_filename)
 
 def get_last_hwnd_all_from_json():
     global all_history
@@ -219,7 +254,7 @@ def save_last_hwnd_all_to_history(a_last):
     if len(all_history) > max_history_length: # 清除第二次，确认避免长度超过 max_history_length
         all_history.pop()
         all_history.pop()
-    write_obj_to_json(all_history, program_history_json)
+    write_obj_to_json_with_tmp(all_history, program_history_json)
 
 # 保留10000条记录，每3秒记录一次，共约8.3小时
 def program_main():
@@ -250,7 +285,7 @@ def program_main():
         dbg=1
         # log("sleeping...")
         time.sleep(seconds_per_loop/2)
-        write_obj_to_json(all_history, program_history_backup_json)
+        write_obj_to_json_with_tmp(all_history, program_history_backup_json)
         time.sleep(seconds_per_loop/2)
         # os.system("pause")
         dbg=1
@@ -264,6 +299,11 @@ def init_load_cfg():
 init_load_cfg() # 避免 restore_windows.py 导入时，cfg等变量未定义导致的错误
 
 if __name__ == "__main__":
+    if check_tmp_files_exist("程序启动"):
+        error_str = "程序启动时检测到program_history或log的临时文件tmp，\n\n可能上次写入失败，请检查相关文件，然后重新运行程序，\n\n程序将退出，结束运行。"
+        pymsgbox.alert(error_str, "window_monitor - 程序启动")
+        sys.exit(1)
+    log(exe_dir)
     is_debugging = sys.gettrace()
     if is_debugging: # vscode拉起调试中，暴露错误信息
         program_main()
